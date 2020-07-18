@@ -77,6 +77,51 @@ final case class PairType(p1: DataType, p2: DataType) extends ComposedType {
   override def toString: String = s"($p1, $p2)"
 }
 
+object WmmaFragmentLayout extends Enumeration {
+  val Row_Major, Col_Major = Value
+}
+
+sealed trait WmmaFragment extends ComposedType {
+  def m:Nat
+  def n:Nat
+  def k:Nat
+  def dataType: DataType
+
+  def arrayType: ArrayType
+}
+
+final case class WmmaAMatrix(m: Nat,
+                             n: Nat,
+                             k: Nat,
+                             dataType: DataType,
+                             layout: WmmaFragmentLayout.Value
+                            ) extends WmmaFragment {
+  override def arrayType: ArrayType = ArrayType(m, ArrayType(k, dataType))
+
+  override def toString: String = s"wmmaAMatrix[$m,$n,$k,$dataType $layout]"
+}
+
+final case class WmmaBMatrix(m: Nat,
+                             n: Nat,
+                             k: Nat,
+                             dataType: DataType,
+                             layout: WmmaFragmentLayout.Value
+                            ) extends WmmaFragment {
+  override def arrayType: ArrayType = ArrayType(k, ArrayType(n, dataType))
+
+  override def toString: String = s"wmmaBMatrix[$m,$n,$k,$dataType $layout]"
+}
+
+final case class WmmaAcc(m: Nat,
+                         n: Nat,
+                         k: Nat,
+                         dataType: DataType
+                        ) extends WmmaFragment {
+  override def arrayType: ArrayType = ArrayType(m, ArrayType(n, dataType))
+
+  override def toString: String = s"WmmaAccumulator[$m,$n,$k,$dataType]"
+}
+
 sealed trait BasicType extends DataType
 
 sealed trait ScalarType extends BasicType

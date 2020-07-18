@@ -289,6 +289,9 @@ object infer {
             decomposed(Seq(NatConstraint(sa, sb), TypeConstraint(ea, eb)))
           case (VectorType(sa, ea), VectorType(sb, eb)) =>
             decomposed(Seq(NatConstraint(sa, sb), TypeConstraint(ea, eb)))
+          case (f1: WmmaFragment, f2: WmmaFragment) =>
+            decomposed(Seq(NatConstraint(f1.m, f2.m), NatConstraint(f1.n, f2.n), NatConstraint(f1.k, f2.k),
+              TypeConstraint(f1.dataType, f2.dataType)))
           case (DepArrayType(sa, ea), DepArrayType(sb, eb)) =>
             decomposed(Seq(NatConstraint(sa, sb), NatToDataConstraint(ea, eb)))
           case (PairType(pa1, pa2), PairType(pb1, pb2)) =>

@@ -423,6 +423,72 @@ object primitives {
       )
   }
 
+  @primitive case class ToFragment()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+      implN(m =>
+        implN(n =>
+          implN(k =>
+            implST(dt =>
+              nFunT(_ =>
+                dtFunT(fragType =>
+                  //TODO A? B?-Matrix
+                  ArrayType(m, ArrayType(k, dt)) ->: fragType
+                )
+              )
+            )
+          )
+        )
+      )
+  }
+
+  @primitive case class FromFragment()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+      implN(m =>
+        implN(n =>
+          implN(k =>
+            implST(dt =>
+              nFunT(_ =>
+                WmmaAcc(m, n, k, dt) ->: ArrayType(m, ArrayType(n, dt))
+              )
+            )
+          )
+        )
+      )
+  }
+
+  @primitive case class GenerateFragment()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+      nFunT(m =>
+        nFunT(n =>
+          nFunT(k =>
+            implST(dt =>
+              dt ->: WmmaAcc(m, n, k, dt)
+            )
+          )
+        )
+      )
+  }
+
+  @primitive case class TensorMMA()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+      implN(m =>
+        implN(n =>
+          implN(k =>
+            implST(dt =>
+              implST(dt2 =>
+                //TODO Layout
+                WmmaAMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major) ->:WmmaBMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major) ->: WmmaAcc(m, n, k, dt2) ->: WmmaAcc(m, n, k, dt2)
+              )
+            )
+          )
+        )
+      )
+  }
+
   @primitive case class Neg()(override val t: Type = TypePlaceholder)
       extends Primitive {
     override def typeScheme: Type = implBT(t => t ->: t)
