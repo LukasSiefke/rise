@@ -60,10 +60,6 @@ object DSL {
   def select: Select = primitives.Select()()
   def unzip: Unzip = primitives.Unzip()()
   def zip: Zip = primitives.Zip()()
-  def toFragment: ToFragment = primitives.ToFragment()()
-  def fromFragment: FromFragment = primitives.FromFragment()()
-  def generateFragment: GenerateFragment = primitives.GenerateFragment()()
-  def tensorMMA: TensorMMA = primitives.TensorMMA()()
 
   def neg: Neg = primitives.Neg()()
   def not: Not = primitives.Not()()
