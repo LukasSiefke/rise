@@ -36,10 +36,9 @@ object DSL {
     def apply(layout: WmmaFragmentLayout.Value): FromFragment = FromFragment(layout)()
   }
 
-  def toFragment: ToFragment = ToFragment()()
-  def toFragmentA: ToFragmentA = ToFragmentA()()
-  def toFragmentB: ToFragmentB = ToFragmentB()()
-  def toFragmentAcc: ToFragmentAcc = ToFragmentAcc()()
+  def toFragmentA(layout: WmmaFragmentLayout.Value, n: Nat): ToFragmentA = ToFragmentA(layout, n)()
+  def toFragmentB(layout: WmmaFragmentLayout.Value, m: Nat): ToFragmentB = ToFragmentB(layout, m)()
+  def toFragmentAcc(layout: WmmaFragmentLayout.Value, k: Nat): ToFragmentAcc = ToFragmentAcc(layout, k)()
   def generateFragment(m: Nat, n: Nat, k: Nat): GenerateFragment = GenerateFragment(m, n, k)()
   def tensorMMA: TensorMMA = TensorMMA()()
 }

@@ -36,67 +36,42 @@ object primitives {
     override def typeScheme: Type = mapTypeScheme
   }
 
-  @primitive case class ToFragment()(override val t: Type = TypePlaceholder)
-    extends Primitive {
-    override def typeScheme: Type =
-      implN(m =>
-        implN(n =>
-          implST(dt =>
-            nFunT(_ =>
-              dtFunT(fragType =>
-                ArrayType(m, ArrayType(n, dt)) ->: fragType
-              )
-            )
-          )
-        )
-      )
-  }
-
-  @primitive case class ToFragmentA()(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentA(layout: WmmaFragmentLayout.Value, n: Nat)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
         implN(k =>
           implST(dt =>
             nFunT(_ =>
-              nFunT(n =>
-                //TODO layout
-                ArrayType(m, ArrayType(k, dt)) ->: WmmaAMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major)
-              )
+              ArrayType(m, ArrayType(k, dt)) ->: WmmaAMatrix(m, n, k, dt, layout)
             )
           )
         )
       )
   }
 
-  @primitive case class ToFragmentB()(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentB(layout: WmmaFragmentLayout.Value, m: Nat)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(k =>
         implN(n =>
           implST(dt =>
             nFunT(_ =>
-              nFunT(m =>
-                //TODO layout
-                ArrayType(k, ArrayType(n, dt)) ->: WmmaBMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major)
-              )
+              ArrayType(k, ArrayType(n, dt)) ->: WmmaBMatrix(m, n, k, dt, layout)
             )
           )
         )
       )
   }
 
-  @primitive case class ToFragmentAcc()(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentAcc(layout: WmmaFragmentLayout.Value, k: Nat)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
         implN(n =>
           implST(dt =>
             nFunT(_ =>
-              nFunT(k =>
-                //TODO layout
-                ArrayType(m, ArrayType(n, dt)) ->: WmmaAcc(m, n, k, dt)
-              )
+              ArrayType(m, ArrayType(n, dt)) ->: WmmaAcc(m, n, k, dt)
             )
           )
         )
