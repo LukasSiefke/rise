@@ -21,7 +21,7 @@ object primitives {
     override def typeScheme: Type = mapTypeScheme
   }
 
-  @primitive case class MapGrid(dim: Char)(override val t: Type = TypePlaceholder)
+  @primitive case class MapGlobal(dim: Char)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type = mapTypeScheme
   }
@@ -32,6 +32,11 @@ object primitives {
   }
 
   @primitive case class MapWarp(dim: Char)(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type = mapTypeScheme
+  }
+
+  @primitive case class MapLane(dim: Char)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type = mapTypeScheme
   }
@@ -102,7 +107,7 @@ object primitives {
       )
   }
 
-  @primitive case class TensorMMA()(override val t: Type = TypePlaceholder)
+  @primitive case class TensorMMA(layoutA: WmmaFragmentLayout.Value, layoutB: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -110,9 +115,8 @@ object primitives {
           implN(k =>
             implST(dt =>
               implST(dt2 =>
-                //TODO layout kann beliebig sein
-                WmmaAMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major) ->:
-                  WmmaBMatrix(m, n, k, dt, WmmaFragmentLayout.Row_Major) ->:
+                WmmaAMatrix(m, n, k, dt, layoutA) ->:
+                  WmmaBMatrix(m, n, k, dt, layoutB) ->:
                   WmmaAcc(m, n, k, dt2) ->: WmmaAcc(m, n, k, dt2)
               )
             )
@@ -120,5 +124,4 @@ object primitives {
         )
       )
   }
-
 }
