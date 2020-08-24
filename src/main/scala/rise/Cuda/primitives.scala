@@ -1,7 +1,6 @@
 package rise.Cuda
 
 import primitiveMacro.Primitive.primitive
-import rise.core.Nat
 import rise.core.TypeLevelDSL._
 import rise.core.types._
 
@@ -41,42 +40,48 @@ object primitives {
     override def typeScheme: Type = mapTypeScheme
   }
 
-  @primitive case class ToFragmentA(layout: WmmaFragmentLayout.Value, n: Nat)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentA(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
-        implN(k =>
-          implST(dt =>
-            nFunT(_ =>
-              ArrayType(m, ArrayType(k, dt)) ->: WmmaAMatrix(m, n, k, dt, layout)
+        implN(n =>
+          implN(k =>
+            implST(dt =>
+              nFunT(_ =>
+                ArrayType(m, ArrayType(k, dt)) ->: WmmaAMatrix(m, n, k, dt, layout)
+              )
             )
           )
         )
       )
   }
 
-  @primitive case class ToFragmentB(layout: WmmaFragmentLayout.Value, m: Nat)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentB(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
-      implN(k =>
+      implN(m =>
         implN(n =>
-          implST(dt =>
-            nFunT(_ =>
-              ArrayType(k, ArrayType(n, dt)) ->: WmmaBMatrix(m, n, k, dt, layout)
+          implN(k =>
+            implST(dt =>
+              nFunT(_ =>
+                ArrayType(k, ArrayType(n, dt)) ->: WmmaBMatrix(m, n, k, dt, layout)
+              )
             )
           )
         )
       )
   }
 
-  @primitive case class ToFragmentAcc(layout: WmmaFragmentLayout.Value, k: Nat)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentAcc(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
         implN(n =>
-          implST(dt =>
-            nFunT(_ =>
-              ArrayType(m, ArrayType(n, dt)) ->: WmmaAcc(m, n, k, dt)
+          implN(k =>
+            implST(dt =>
+              nFunT(_ =>
+                ArrayType(m, ArrayType(n, dt)) ->: WmmaAcc(m, n, k, dt)
+              )
             )
           )
         )
@@ -99,14 +104,21 @@ object primitives {
       )
   }
 
-  @primitive case class GenerateFragment(m: Nat, n: Nat, k: Nat)(override val t: Type = TypePlaceholder)
+  @primitive case class GenerateFragment()(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
-      implST(dt =>
-        dt ->: WmmaAcc(m, n, k, dt)
+      implN(m =>
+        implN(n =>
+          implN(k =>
+            implST(dt =>
+              dt ->: WmmaAcc(m, n, k, dt)
+            )
+          )
+        )
       )
   }
 
+  //TODO layout identifier
   @primitive case class TensorMMA(layoutA: WmmaFragmentLayout.Value, layoutB: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
@@ -123,5 +135,19 @@ object primitives {
           )
         )
       )
+  }
+
+  @primitive case class ScaleFragment()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+      implFT(fragType =>
+        //TODO this should be dataType from Fragment
+        implDT(dt =>
+          (dt ->: dt) ->: fragType ->: fragType))
+  }
+
+  @primitive case class GlobalToShared()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type = implDT(t => t ->: t)
   }
 }

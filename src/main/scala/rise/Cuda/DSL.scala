@@ -3,6 +3,7 @@ package rise.Cuda
 import rise.Cuda.primitives._
 import rise.core.DSL._
 import rise.core._
+import rise.core.semantics.HalfData
 import rise.core.types.WmmaFragmentLayout
 import rise.core.types.WmmaFragmentLayout._
 
@@ -38,26 +39,31 @@ object DSL {
   }
 
   object toFragmentA {
-    def apply(n: Nat): Expr = ToFragmentA(Row_Major, n)()
-    def apply(layout: WmmaFragmentLayout.Value, n: Nat): ToFragmentA = ToFragmentA(layout, n)()
+    def apply(ldm: Nat): Expr = ToFragmentA(Row_Major)()(ldm)
+    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentA(layout)()(ldm)
   }
 
   object toFragmentB {
-    def apply(m: Nat): Expr = ToFragmentB(Row_Major, m)()
-    def apply(layout: WmmaFragmentLayout.Value, m: Nat): ToFragmentB = ToFragmentB(layout, m)()
+    def apply(ldm: Nat): Expr = ToFragmentB(Row_Major)()(ldm)
+    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentB(layout)()(ldm)
   }
 
   object toFragmentAcc {
-    def apply(k: Nat): Expr = ToFragmentAcc(Row_Major, k)()
-    def apply(layout: WmmaFragmentLayout.Value, k: Nat): ToFragmentAcc = ToFragmentAcc(layout, k)()
+    def apply(ldm: Nat): Expr = ToFragmentAcc(Row_Major)()(ldm)
+    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentAcc(layout)()(ldm)
   }
 
   object fromFragment {
-    def apply(n: Nat): Expr = FromFragment(Row_Major)()(n)
-    def apply(layout: WmmaFragmentLayout.Value): FromFragment = FromFragment(layout)()
+    def apply(ldm: Nat): Expr = FromFragment(Row_Major)()(ldm)
+    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = FromFragment(layout)()(ldm)
   }
 
-  def generateFragment(m: Nat, n: Nat, k: Nat): GenerateFragment = GenerateFragment(m, n, k)()
+  def generateFragment: GenerateFragment = GenerateFragment()()
+  def scaleFragment: ScaleFragment = ScaleFragment()()
+  def globalToShared: GlobalToShared = GlobalToShared()()
   def tensorMMA: TensorMMA = TensorMMA(Row_Major, Row_Major)()
   def tensorMMA2: TensorMMA = TensorMMA(Row_Major, Col_Major)()
+  def tensorMMA3: TensorMMA = TensorMMA(Col_Major, Row_Major)()
+
+  def h(f: Float): Literal = literal(HalfData(f))
 }

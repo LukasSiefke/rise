@@ -106,6 +106,10 @@ object TypeLevelDSL {
   def implST[A](f: DataTypeIdentifier => A): A = {
     f(DataTypeIdentifier(freshName("dt")))
   }
+  // TODO: FragmentTypeIdentifier
+  def implFT[A](f: DataTypeIdentifier => A): A = {
+    f(DataTypeIdentifier(freshName("dt")))
+  }
 
   def implN2N[A](f: NatToNat => A): A = {
     f(NatToNatIdentifier(freshName("n2n")))
