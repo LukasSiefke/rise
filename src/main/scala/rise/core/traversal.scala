@@ -29,6 +29,7 @@ object traversal {
       Continue(a, this)
     def visitN2N(n2n: NatToNat): Result[NatToNat] = Continue(n2n, this)
     def visitN2D(n2d: NatToData): Result[NatToData] = Continue(n2d, this)
+    def visitML(ml: MatrixLayout): Result[MatrixLayout] = Continue(ml, this)
   }
 
   object DepthFirstLocalResult {
@@ -251,9 +252,9 @@ object traversal {
               case VectorType(n, e) =>
                 VectorType(v.visitNat(n).value, data(e, v))
               case WmmaAMatrix(m, n, k, dt, layout) =>
-                WmmaAMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), layout)
+                WmmaAMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), v.visitML(layout).value)
               case WmmaBMatrix(m, n, k, dt, layout) =>
-                WmmaBMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), layout)
+                WmmaBMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), v.visitML(layout).value)
               case WmmaAcc(m, n, k, dt) =>
                 WmmaAcc(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v))
               case NatToDataApply(ndtf, n) =>

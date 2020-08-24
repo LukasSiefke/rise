@@ -220,6 +220,33 @@ object substitute {
     }
   }
 
+  // substitute in MatrixLayout
+  def matrixLayoutsInMatrixLayout(
+      subs: Map[MatrixLayoutIdentifier, MatrixLayout],
+      in: MatrixLayout
+  ): MatrixLayout = {
+    in match {
+      case i: MatrixLayoutIdentifier =>
+        subs.get(i) match {
+          case Some(a) => a
+          case None    => i
+        }
+      case a => a
+    }
+  }
+
+  def matrixLayoutInMatrixLayout(
+      a: MatrixLayout,
+      `for`: MatrixLayoutIdentifier,
+      in: MatrixLayout
+  ): MatrixLayout = {
+    if (in == `for`) {
+      a
+    } else {
+      in
+    }
+  }
+
   // substitute in NatToData
   def n2dsInN2d(
       subs: Map[NatToDataIdentifier, NatToData],

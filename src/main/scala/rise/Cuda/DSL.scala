@@ -4,8 +4,8 @@ import rise.Cuda.primitives._
 import rise.core.DSL._
 import rise.core._
 import rise.core.semantics.HalfData
-import rise.core.types.WmmaFragmentLayout
-import rise.core.types.WmmaFragmentLayout._
+import rise.core.types.MatrixLayout
+import rise.core.types.MatrixLayout._
 
 object DSL {
   object mapBlock {
@@ -40,30 +40,28 @@ object DSL {
 
   object toFragmentA {
     def apply(ldm: Nat): Expr = ToFragmentA(Row_Major)()(ldm)
-    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentA(layout)()(ldm)
+    def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentA(layout)()(ldm)
   }
 
   object toFragmentB {
     def apply(ldm: Nat): Expr = ToFragmentB(Row_Major)()(ldm)
-    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentB(layout)()(ldm)
+    def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentB(layout)()(ldm)
   }
 
   object toFragmentAcc {
     def apply(ldm: Nat): Expr = ToFragmentAcc(Row_Major)()(ldm)
-    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = ToFragmentAcc(layout)()(ldm)
+    def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentAcc(layout)()(ldm)
   }
 
   object fromFragment {
     def apply(ldm: Nat): Expr = FromFragment(Row_Major)()(ldm)
-    def apply(layout: WmmaFragmentLayout.Value, ldm: Nat): Expr = FromFragment(layout)()(ldm)
+    def apply(layout: MatrixLayout, ldm: Nat): Expr = FromFragment(layout)()(ldm)
   }
 
   def generateFragment: GenerateFragment = GenerateFragment()()
   def scaleFragment: ScaleFragment = ScaleFragment()()
   def globalToShared: GlobalToShared = GlobalToShared()()
-  def tensorMMA: TensorMMA = TensorMMA(Row_Major, Row_Major)()
-  def tensorMMA2: TensorMMA = TensorMMA(Row_Major, Col_Major)()
-  def tensorMMA3: TensorMMA = TensorMMA(Col_Major, Row_Major)()
+  def tensorMMA: TensorMMA = TensorMMA()()
 
   def h(f: Float): Literal = literal(HalfData(f))
 }

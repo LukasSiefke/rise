@@ -77,8 +77,28 @@ final case class PairType(p1: DataType, p2: DataType) extends ComposedType {
   override def toString: String = s"($p1, $p2)"
 }
 
-object WmmaFragmentLayout extends Enumeration {
-  val Row_Major, Col_Major = Value
+sealed trait MatrixLayout
+
+object MatrixLayout {
+  object Row_Major extends MatrixLayout { override def toString = "Row_Major" }
+  object Col_Major extends MatrixLayout { override def toString = "Col_Major" }
+}
+
+final case class MatrixLayoutIdentifier(
+                                         name: String,
+                                         override val isExplicit: Boolean = false
+                                       ) extends MatrixLayout
+  with Kind.Identifier
+  with Kind.Explicitness {
+  override def toString: String = if (isExplicit) name else "_" + name
+  override def asExplicit: MatrixLayoutIdentifier = this.copy(isExplicit = true)
+  override def asImplicit: MatrixLayoutIdentifier =
+    this.copy(isExplicit = false)
+  override def equals(that: Any): Boolean = that match {
+    case a: MatrixLayoutIdentifier => this.name == a.name
+    case _                         => false
+  }
+  override def hashCode(): Int = this.name.hashCode()
 }
 
 sealed trait WmmaFragment extends ComposedType {
@@ -94,7 +114,7 @@ final case class WmmaAMatrix(m: Nat,
                              n: Nat,
                              k: Nat,
                              dataType: DataType,
-                             layout: WmmaFragmentLayout.Value
+                             layout: MatrixLayout
                             ) extends WmmaFragment {
   override def arrayType: ArrayType = ArrayType(m, ArrayType(k, dataType))
 
@@ -105,7 +125,7 @@ final case class WmmaBMatrix(m: Nat,
                              n: Nat,
                              k: Nat,
                              dataType: DataType,
-                             layout: WmmaFragmentLayout.Value
+                             layout: MatrixLayout
                             ) extends WmmaFragment {
   override def arrayType: ArrayType = ArrayType(k, ArrayType(n, dataType))
 

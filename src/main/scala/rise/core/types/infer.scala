@@ -54,6 +54,10 @@ object infer {
       extends Constraint {
     override def toString: String = s"$df ($arg) ~ $t"
   }
+  case class MatrixLayoutConstraint(a: MatrixLayout, b: MatrixLayout)
+      extends Constraint {
+    override def toString: String = s"$a  ~  $b"
+  }
 
   def constrainTypes(
       expr: Expr,
@@ -130,24 +134,27 @@ object infer {
   }
 
   object Solution {
-    def apply(): Solution = Solution(Map(), Map(), Map(), Map())
+    def apply(): Solution = Solution(Map(), Map(), Map(), Map(), Map())
     def subs(ta: Type, tb: Type): Solution =
-      Solution(Map(ta -> tb), Map(), Map(), Map())
+      Solution(Map(ta -> tb), Map(), Map(), Map(), Map())
     def subs(ta: DataTypeIdentifier, tb: Type): Solution =
-      Solution(Map(ta -> tb), Map(), Map(), Map())
+      Solution(Map(ta -> tb), Map(), Map(), Map(), Map())
     def subs(na: NatIdentifier, nb: Nat): Solution =
-      Solution(Map(), Map(na -> nb), Map(), Map())
+      Solution(Map(), Map(na -> nb), Map(), Map(), Map())
     def subs(aa: AddressSpaceIdentifier, ab: AddressSpace): Solution =
-      Solution(Map(), Map(), Map(aa -> ab), Map())
+      Solution(Map(), Map(), Map(aa -> ab), Map(), Map())
     def subs(na: NatToDataIdentifier, nb: NatToData): Solution =
-      Solution(Map(), Map(), Map(), Map(na -> nb))
+      Solution(Map(), Map(), Map(), Map(na -> nb), Map())
+    def subs(ma: MatrixLayoutIdentifier, mb: MatrixLayout): Solution =
+      Solution(Map(), Map(), Map(), Map(), Map(ma -> mb))
   }
 
   case class Solution(
       ts: Map[Type, Type],
       ns: Map[NatIdentifier, Nat],
       as: Map[AddressSpaceIdentifier, AddressSpace],
-      n2ds: Map[NatToDataIdentifier, NatToData]
+      n2ds: Map[NatToDataIdentifier, NatToData],
+      mls: Map[MatrixLayoutIdentifier, MatrixLayout]
   ) {
     import traversal.{Continue, Result, Stop}
 
@@ -158,6 +165,7 @@ object infer {
       override def visitAddressSpace(a: AddressSpace): Result[AddressSpace] =
         Stop(sol(a))
       override def visitN2D(n2d: NatToData): Result[NatToData] = Stop(sol(n2d))
+      override def visitML(ml: MatrixLayout): Result[MatrixLayout] = Stop(sol(ml))
     }
 
     def apply(e: Expr): Expr = {
@@ -192,6 +200,10 @@ object infer {
      */
     }
 
+    def apply(ml: MatrixLayout): MatrixLayout = {
+      substitute.matrixLayoutsInMatrixLayout(mls, ml)
+    }
+
     def apply(n2d: NatToData): NatToData = {
       substitute.n2dsInN2d(n2ds, n2d)
       /*
@@ -210,7 +222,8 @@ object infer {
           s1.ts.mapValues(t => s2(t)) ++ s2.ts,
           s1.ns.mapValues(n => s2(n)) ++ s2.ns,
           s1.as.mapValues(a => s2(a)) ++ s2.as,
-          s1.n2ds.mapValues(n => s2(n)) ++ s2.n2ds
+          s1.n2ds.mapValues(n => s2(n)) ++ s2.n2ds,
+          s1.mls.mapValues(m => s2(m)) ++ s2.mls
         )
       }
 
@@ -257,6 +270,8 @@ object infer {
           )
         case DepConstraint(df, arg: AddressSpace, t) =>
           DepConstraint[AddressSpaceKind](apply(df), apply(arg), apply(t))
+        case MatrixLayoutConstraint(a, b) =>
+          MatrixLayoutConstraint(apply(a), apply(b))
       }
     }
   }
@@ -289,12 +304,12 @@ object infer {
             decomposed(Seq(NatConstraint(sa, sb), TypeConstraint(ea, eb)))
           case (VectorType(sa, ea), VectorType(sb, eb)) =>
             decomposed(Seq(NatConstraint(sa, sb), TypeConstraint(ea, eb)))
-          case (WmmaAMatrix(ma, na, ka, dta, layouta), WmmaAMatrix(mb, nb, kb, dtb, layoutb)) if layouta == layoutb =>
+          case (WmmaAMatrix(ma, na, ka, dta, layouta), WmmaAMatrix(mb, nb, kb, dtb, layoutb)) =>
               decomposed(Seq(NatConstraint(ma, mb), NatConstraint(na, nb), NatConstraint(ka, kb),
-                TypeConstraint(dta, dtb)))
-          case (WmmaBMatrix(ma, na, ka, dta, layouta), WmmaBMatrix(mb, nb, kb, dtb, layoutb)) if layouta == layoutb =>
+                TypeConstraint(dta, dtb), MatrixLayoutConstraint(layouta, layoutb)))
+          case (WmmaBMatrix(ma, na, ka, dta, layouta), WmmaBMatrix(mb, nb, kb, dtb, layoutb)) =>
               decomposed(Seq(NatConstraint(ma, mb), NatConstraint(na, nb), NatConstraint(ka, kb),
-                TypeConstraint(dta, dtb)))
+                TypeConstraint(dta, dtb), MatrixLayoutConstraint(layouta, layoutb)))
           case (WmmaAcc(ma, na, ka, dta), WmmaAcc(mb, nb, kb, dtb)) =>
             decomposed(Seq(NatConstraint(ma, mb), NatConstraint(na, nb), NatConstraint(ka, kb),
               TypeConstraint(dta, dtb)))
@@ -377,6 +392,13 @@ object infer {
           case _                           => error(s"cannot unify $a and $b")
         }
 
+      case MatrixLayoutConstraint(a, b) =>
+        (a, b) match {
+          case (i: MatrixLayoutIdentifier, _) if (!i.isExplicit) => Solution.subs(i, b)
+          case (_, i: MatrixLayoutIdentifier) if (!i.isExplicit) => Solution.subs(i, a)
+          case _ if a == b                 => Solution()
+          case _                           => error(s"cannot unify $a and $b")
+        }
     }
   }
 

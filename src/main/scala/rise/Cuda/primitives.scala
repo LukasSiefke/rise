@@ -40,7 +40,7 @@ object primitives {
     override def typeScheme: Type = mapTypeScheme
   }
 
-  @primitive case class ToFragmentA(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentA(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -56,7 +56,7 @@ object primitives {
       )
   }
 
-  @primitive case class ToFragmentB(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentB(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -72,7 +72,7 @@ object primitives {
       )
   }
 
-  @primitive case class ToFragmentAcc(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentAcc(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -88,7 +88,7 @@ object primitives {
       )
   }
 
-  @primitive case class FromFragment(layout: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
+  @primitive case class FromFragment(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -118,18 +118,21 @@ object primitives {
       )
   }
 
-  //TODO layout identifier
-  @primitive case class TensorMMA(layoutA: WmmaFragmentLayout.Value, layoutB: WmmaFragmentLayout.Value)(override val t: Type = TypePlaceholder)
+  @primitive case class TensorMMA()(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
-      implN(m =>
-        implN(n =>
-          implN(k =>
-            implST(dt =>
-              implST(dt2 =>
-                WmmaAMatrix(m, n, k, dt, layoutA) ->:
-                  WmmaBMatrix(m, n, k, dt, layoutB) ->:
-                  WmmaAcc(m, n, k, dt2) ->: WmmaAcc(m, n, k, dt2)
+      implML(layoutA =>
+        implML(layoutB =>
+          implN(m =>
+            implN(n =>
+              implN(k =>
+                implST(dt =>
+                  implST(dt2 =>
+                    WmmaAMatrix(m, n, k, dt, layoutA) ->:
+                      WmmaBMatrix(m, n, k, dt, layoutB) ->:
+                      WmmaAcc(m, n, k, dt2) ->: WmmaAcc(m, n, k, dt2)
+                  )
+                )
               )
             )
           )
@@ -141,7 +144,6 @@ object primitives {
     extends Primitive {
     override def typeScheme: Type =
       implFT(fragType =>
-        //TODO this should be dataType from Fragment
         implDT(dt =>
           (dt ->: dt) ->: fragType ->: fragType))
   }

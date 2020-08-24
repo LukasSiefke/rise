@@ -48,6 +48,11 @@ sealed trait NatToDataKind extends Kind {
   override type I = NatToDataIdentifier
 }
 
+sealed trait MatrixLayoutKind extends Kind {
+  override type T = MatrixLayout
+  override type I = MatrixLayoutIdentifier
+}
+
 trait KindName[K <: Kind] {
   def get: String
 }
@@ -71,5 +76,8 @@ object KindName {
   }
   implicit val n2dtKN: KindName[NatToDataKind] = new KindName[NatToDataKind] {
     def get = "nat->data"
+  }
+  implicit val matrixLayoutKN: KindName[MatrixLayoutKind] = new KindName[MatrixLayoutKind] {
+    def get = "matrixLayout"
   }
 }

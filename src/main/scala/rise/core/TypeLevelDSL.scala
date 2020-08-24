@@ -123,6 +123,10 @@ object TypeLevelDSL {
     f(AddressSpaceIdentifier(freshName("w")))
   }
 
+  def implML[A](f: MatrixLayoutIdentifier => A): A = {
+    f(MatrixLayoutIdentifier(freshName("w")))
+  }
+
   def freshTypeIdentifier: Type = implT(identity)
 
   implicit final class TypeConstructors(private val r: Type) extends AnyVal {
