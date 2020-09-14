@@ -58,8 +58,13 @@ object DSL {
     def apply(layout: MatrixLayout, ldm: Nat): Expr = FromFragment(layout)()(ldm)
   }
 
+  object toSharedMemoryShift {
+    def apply(shift: Nat): Expr = ToSharedMemoryShift()()(shift)
+    def apply(shift: Nat, array: Expr): Expr = ToSharedMemoryShift()()(shift)(array)
+  }
+
   def generateFragment: GenerateFragment = GenerateFragment()()
-  def scaleFragment: ScaleFragment = ScaleFragment()()
+  def mapFragmentElements: MapFragmentElements = MapFragmentElements()()
   def globalToShared: GlobalToShared = GlobalToShared()()
   def tensorMMA: TensorMMA = TensorMMA()()
 

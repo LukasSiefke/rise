@@ -140,7 +140,21 @@ object primitives {
       )
   }
 
-  @primitive case class ScaleFragment()(override val t: Type = TypePlaceholder)
+  @primitive case class ToSharedMemoryShift()(override val t: Type = TypePlaceholder)
+    extends Primitive {
+    override def typeScheme: Type =
+    implN(m =>
+      implN(n =>
+        nFunT(s =>
+          implDT(t =>
+            ArrayType(m, ArrayType(n, t)) ->: ArrayType(m, ArrayType(n, t))
+          )
+        )
+      )
+    )
+  }
+
+  @primitive case class MapFragmentElements()(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implFT(fragType =>
