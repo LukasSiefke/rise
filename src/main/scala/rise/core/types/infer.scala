@@ -488,6 +488,10 @@ object infer {
     def tryPivots(n: Nat, value: Nat)(
         implicit trace: Seq[Constraint]
     ): Solution = {
+      //TODO is this right???
+      if (n.isInstanceOf[Cst] && value.isInstanceOf[Cst] && n.asInstanceOf[Cst].c == value.asInstanceOf[Cst].c)
+        return Solution.apply()
+
       potentialPivots(n).foreach(pivotSolution(_, n, value) match {
         case Some(s) => return s
         case None    =>
