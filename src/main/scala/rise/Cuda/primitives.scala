@@ -72,7 +72,7 @@ object primitives {
       )
   }
 
-  @primitive case class ToFragmentAcc(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
+  @primitive case class ToFragmentAccumulator(layout: MatrixLayout)(override val t: Type = TypePlaceholder)
     extends Primitive {
     override def typeScheme: Type =
       implN(m =>
@@ -80,7 +80,7 @@ object primitives {
           implN(k =>
             implST(dt =>
               nFunT(_ =>
-                ArrayType(m, ArrayType(n, dt)) ->: WmmaAcc(m, n, k, dt)
+                ArrayType(m, ArrayType(n, dt)) ->: WmmaAccumulator(m, n, k, dt)
               )
             )
           )
@@ -96,7 +96,7 @@ object primitives {
           implN(k =>
             implST(dt =>
               nFunT(_ =>
-                WmmaAcc(m, n, k, dt) ->: ArrayType(m, ArrayType(n, dt))
+                WmmaAccumulator(m, n, k, dt) ->: ArrayType(m, ArrayType(n, dt))
               )
             )
           )
@@ -111,7 +111,7 @@ object primitives {
         implN(n =>
           implN(k =>
             implST(dt =>
-              dt ->: WmmaAcc(m, n, k, dt)
+              dt ->: WmmaAccumulator(m, n, k, dt)
             )
           )
         )
@@ -130,7 +130,7 @@ object primitives {
                   implST(dt2 =>
                     WmmaAMatrix(m, n, k, dt, layoutA) ->:
                       WmmaBMatrix(m, n, k, dt, layoutB) ->:
-                      WmmaAcc(m, n, k, dt2) ->: WmmaAcc(m, n, k, dt2)
+                      WmmaAccumulator(m, n, k, dt2) ->: WmmaAccumulator(m, n, k, dt2)
                   )
                 )
               )

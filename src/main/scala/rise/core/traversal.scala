@@ -255,8 +255,8 @@ object traversal {
                 WmmaAMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), v.visitML(layout).value)
               case WmmaBMatrix(m, n, k, dt, layout) =>
                 WmmaBMatrix(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v), v.visitML(layout).value)
-              case WmmaAcc(m, n, k, dt) =>
-                WmmaAcc(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v))
+              case WmmaAccumulator(m, n, k, dt) =>
+                WmmaAccumulator(v.visitNat(m).value, v.visitNat(n).value, v.visitNat(k).value, data(dt, v))
               case NatToDataApply(ndtf, n) =>
                 NatToDataApply(v.visitN2D(ndtf).value, v.visitNat(n).value)
             }).asInstanceOf[DT]

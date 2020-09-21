@@ -48,9 +48,9 @@ object DSL {
     def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentB(layout)()(ldm)
   }
 
-  object toFragmentAcc {
-    def apply(ldm: Nat): Expr = ToFragmentAcc(Row_Major)()(ldm)
-    def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentAcc(layout)()(ldm)
+  object toFragmentAccumulator {
+    def apply(ldm: Nat): Expr = ToFragmentAccumulator(Row_Major)()(ldm)
+    def apply(layout: MatrixLayout, ldm: Nat): Expr = ToFragmentAccumulator(layout)()(ldm)
   }
 
   object fromFragment {

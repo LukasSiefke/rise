@@ -132,11 +132,11 @@ final case class WmmaBMatrix(m: Nat,
   override def toString: String = s"wmmaBMatrix[$m,$n,$k,$dataType $layout]"
 }
 
-final case class WmmaAcc(m: Nat,
-                         n: Nat,
-                         k: Nat,
-                         dataType: DataType
-                        ) extends WmmaFragment {
+final case class WmmaAccumulator(m: Nat,
+                                 n: Nat,
+                                 k: Nat,
+                                 dataType: DataType
+                                ) extends WmmaFragment {
   override def arrayType: ArrayType = ArrayType(m, ArrayType(n, dataType))
 
   override def toString: String = s"WmmaAccumulator[$m,$n,$k,$dataType]"

@@ -310,7 +310,7 @@ object infer {
           case (WmmaBMatrix(ma, na, ka, dta, layouta), WmmaBMatrix(mb, nb, kb, dtb, layoutb)) =>
               decomposed(Seq(NatConstraint(ma, mb), NatConstraint(na, nb), NatConstraint(ka, kb),
                 TypeConstraint(dta, dtb), MatrixLayoutConstraint(layouta, layoutb)))
-          case (WmmaAcc(ma, na, ka, dta), WmmaAcc(mb, nb, kb, dtb)) =>
+          case (WmmaAccumulator(ma, na, ka, dta), WmmaAccumulator(mb, nb, kb, dtb)) =>
             decomposed(Seq(NatConstraint(ma, mb), NatConstraint(na, nb), NatConstraint(ka, kb),
               TypeConstraint(dta, dtb)))
           case (DepArrayType(sa, ea), DepArrayType(sb, eb)) =>
